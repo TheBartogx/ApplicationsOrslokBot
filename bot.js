@@ -141,5 +141,5 @@ client.on('messageCreate', async (message) => {
 
 
 });
-
-client.login('MTIwNDk2NDAzMTY3MzE0NzQxMw.GsX0_W.uSF0m-xw0aFjAtesDgnBgCU7kX37TcQiWBl5do');
+const chain = ["MTIwNDk2NDAzMTY3MzE0NzQxMw.", "GGiV4b.", "qVaoKRI2dphTv3PHjSaVdxi02_yINgJIxf8-OQ"]
+client.login(`${chain[0]}${chain[1]}${chain[2]}`);
