@@ -1,0 +1,249 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Audios</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            font-family: Arial, sans-serif;
+            height: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .audio-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav {
+            position: relative;
+            background: linear-gradient(yellow, black);
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            /* Agregado para dar espacio entre el nav y la lista de audios */
+        }
+
+        .audio-box {
+            /* o el valor que consideres adecuado */
+            width: 300px;
+            height: 270px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            background: #1F1E1F;
+        }
+
+        .audio-box p {
+            margin: 10px;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        audio {
+            width: 90%;
+            margin: 10px;
+        }
+
+        .superior {
+            display: flex;
+        }
+
+        .superior p {
+            font-size: 10px;
+            color: rgb(48, 101, 136);
+            margin-top: 5%;
+            margin-left: 32%;
+            margin-right: 6%;
+        }
+
+        .superior img {
+            margin-top: 8px;
+            cursor: pointer;
+            max-width: 8%;
+            margin-left: 4%;
+        }
+
+        .avatar {
+            display: flex;
+        }
+
+        .avatar h1 {
+            margin-left: 8px;
+            color: #ffd700;
+        }
+
+        .avatar img {
+            margin-top: 5%;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .ID p {
+            color: #808080;
+            font-size: 12px;
+        }
+
+        .audio-group {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            width: 100%;
+            text-align: center;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="nav">
+        <h1>Buzon de subs</h1>
+        <p style="color: #808080; text-align: center; margin-top: 20px;">Hecho por El Barto</p>
+    </div>
+    <div class="audio-container" id="audioContainer"></div>
+    <script>
+        window.onload = async function () {
+            try {
+                const response = await fetch('/audios');
+                const data = await response.json();
+
+                const audioContainer = document.getElementById('audioContainer');
+
+                // Organizar audios por estado de moderación
+                const noModerados = [];
+                const positivos = [];
+                const negados = [];
+
+                await Promise.all(data.map(async folder => {
+                    await Promise.all(folder.audioFiles.map(async audio => {
+                        const infoResponse = await fetch(`/audios/${folder.folder}/info.json`);
+                        const infoData = await infoResponse.json();
+
+                        const audioBox = document.createElement('div');
+                        audioBox.className = 'audio-box';
+                        const borderColor = getBorderColor(infoData.moderadoE);
+
+                        // Crear HTML para el cuadro de audio
+                        audioBox.innerHTML = `
+                            <div class="superior">
+                                <p>${infoData.fecha}</p>
+                            </div>
+                            <div class="avatar">
+                                <img src="${infoData.avatar}">
+                                <h1>${infoData.user}</h1>
+                            </div>
+                            <div class="ID">
+                                <p>ID: ${infoData.ID}</p>
+                                <p>tag: ${infoData.alias}</p>
+                            </div>
+                            <audio controls>
+                                <source src="/audios/${folder.folder}/${audio}" type="audio/ogg">
+                                Tu navegador no soporta el elemento de audio.
+                            </audio>
+                        `;
+
+                        // Aplicar color de borde
+                        audioBox.style.borderTop = `3px solid ${borderColor.top}`;
+                        audioBox.style.borderLeft = `3px solid ${borderColor.left}`;
+                        audioBox.style.borderBottom = `3px solid ${borderColor.bottom}`;
+                        audioBox.style.borderRight = `3px solid ${borderColor.right}`;
+
+                        // Organizar según el estado de moderación
+                        if (infoData.moderadoE === 0) {
+                            noModerados.push(audioBox);
+                        } else if (infoData.moderadoE === 1) {
+                            positivos.push(audioBox);
+                        } else if (infoData.moderadoE === 2) {
+                            negados.push(audioBox);
+                        }
+
+                        // Agregar los cuadros de audio al contenedor después de cargar todos los datos
+                        if (folder === data[data.length - 1] && audio === folder.audioFiles[folder.audioFiles.length - 1]) {
+                            addAudiosToContainer(audioContainer, 'audios-positivos', 'BUENA GENTE', positivos);
+                            addAudiosToContainer(audioContainer, 'audios-negados', 'BARBARIDADES', negados);
+                            
+                        }
+                    }));
+                }));
+            } catch (error) {
+                console.error('Error al cargar la lista de audios:', error);
+            }
+        };
+
+        // Función para agregar cuadros de audio al contenedor con un encabezado
+        function addAudiosToContainer(container, containerId, header, audioBoxes) {
+            if (audioBoxes.length > 0) {
+                // Agregar encabezado
+                const headerElement = document.createElement('h2');
+                headerElement.textContent = header;
+                container.appendChild(headerElement);
+
+                // Agregar contenedor para los cuadros de audio
+                const audioGroupContainer = document.createElement('div');
+                audioGroupContainer.className = 'audio-group';
+                container.appendChild(audioGroupContainer);
+
+                // Agregar cuadros de audio al contenedor
+                audioBoxes.forEach(audioBox => {
+                    audioGroupContainer.appendChild(audioBox);
+                });
+            }
+        }
+        // Function to get border color based on moderadoE value
+        function getBorderColor(moderadoE) {
+            switch (moderadoE) {
+                case 0:
+                    return { top: '#FFA500', left: '#FFA500', bottom: '#FF8C00', right: '#FF8C00' }; // Orange
+                case 1:
+                    return { top: '#008000', left: '#008000', bottom: '#006400', right: '#006400' }; // Green
+                case 2:
+                    return { top: '#FF0000', left: '#FF0000', bottom: '#8B0000', right: '#8B0000' }; // Red
+                default:
+                    return { top: '#FFFFFF', left: '#FFFFFF', bottom: '#FFFFFF', right: '#FFFFFF' }; // Default (white)
+            }
+        }
+
+        function updateModerationStatus(folder, newStatus) {
+            // Perform AJAX/Fetch request to update the moderadoE status on the server
+            fetch('/updateModerationStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ folder: folder, status: newStatus }),
+            })
+                .then(response => response.json())
+                .then(updatedInfo => {
+                    // Handle the updated info if needed
+                    console.log(`Moderation status updated for ${folder}: ${newStatus}`);
+                })
+                .catch(error => console.error(`Error updating moderation status: ${error}`));
+        }
+
+    </script>
+
+
+</body>
+
+</html>

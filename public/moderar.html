@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moderar Videos</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+      position: relative;
+    }
+
+    video {
+      width: 100vw;
+      height: 100vh;
+      max-width: 1920px;
+      max-height: 1080px;
+      object-fit: contain;
+      z-index: 1;
+    }
+
+    .button-container {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .button {
+      padding-top: 15%;
+      cursor: pointer;
+      max-width: 3%;
+      max-height: 3%;
+    }
+    .button2 {
+      cursor: pointer;
+      max-width: 3%;
+      max-height: 3%;
+    }
+  </style>
+</head>
+<body>
+  <video id="videoPlayer" controls></video>
+
+  <div class="button-container">
+    <img src="/images/regresar.png" alt="Regresar" class="button2" onclick="playPreviousVideo()">
+    <img src="/images/dislike.png" alt="Dislike" class="button" onclick="dislikeVideo()">
+    <img src="/images/like.png" alt="Like" class="button" onclick="likeVideo()">
+    <img src="/images/siguiente.png" alt="Siguiente" class="button2" onclick="playNextVideo()">
+  </div>
+
+  <script>
+    let videos = [];
+    let currentVideoIndex = 0;
+
+    const videoPlayer = document.getElementById('videoPlayer');
+
+    // Obtener la lista de videos desde el servidor
+    fetch('/getVideos')
+      .then(response => response.json())
+      .then(videosList => {
+        videos = videosList;
+
+        // Verificar si hay videos disponibles
+        if (videos.length > 0) {
+          // Reproducir el primer video al cargar la página
+          playCurrentVideo();
+        } else {
+          console.log('No hay videos disponibles.');
+        }
+      })
+      .catch(error => console.error('Error al obtener la lista de videos:', error));
+
+    // Función para cargar y reproducir el video actual
+    const playCurrentVideo = () => {
+      const currentVideo = videos[currentVideoIndex];
+      if (currentVideo) {
+        videoPlayer.src = `/videos/no_moderados/${currentVideo}`;
+        videoPlayer.pause();
+      } else {
+        console.log('No hay más videos para reproducir.');
+      }
+    };
+
+    // Función para reproducir el video anterior
+    const playPreviousVideo = () => {
+      currentVideoIndex = Math.max(0, currentVideoIndex - 1);
+      playCurrentVideo();
+    };
+
+    // Función para reproducir el próximo video
+    const playNextVideo = () => {
+      currentVideoIndex = Math.min(videos.length - 1, currentVideoIndex + 1);
+      playCurrentVideo();
+    };
+
+    // Función para manejar el botón de "Like"
+    const likeVideo = () => {
+      const currentVideo = videos[currentVideoIndex];
+      if (currentVideo) {
+        // Mover el video a la carpeta de moderados y eliminarlo de no_moderados
+        fetch(`/likeVideo?video=${currentVideo}`)
+          .then(() => {
+            // Pasar al siguiente video
+            playNextVideo();
+          })
+          .catch(error => console.error('Error al procesar el botón "Like":', error));
+      }
+    };
+
+    // Función para manejar el botón de "Dislike"
+    const dislikeVideo = () => {
+      const currentVideo = videos[currentVideoIndex];
+      if (currentVideo) {
+        // Eliminar el video de no_moderados
+        fetch(`/dislikeVideo?video=${currentVideo}`)
+          .then(() => {
+            // Pasar al siguiente video
+            playNextVideo();
+          })
+          .catch(error => console.error('Error al procesar el botón "Dislike":', error));
+      }
+    };
+  </script>
+</body>
+</html>
