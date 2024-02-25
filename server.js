@@ -159,5 +159,5 @@ app.get("/dislikeVideo", (req, res) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Servidor web iniciado en http://localhost:${port}`);
+  console.log(`Servidor web iniciado en http://localhost:${PORT}`);
 });
