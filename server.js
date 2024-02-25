@@ -3,7 +3,7 @@ const fs = require("fs");
 const fsp = require("fs").promises;
 const path = require("path");
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 80;
 const bodyParser = require("body-parser");
 
 
