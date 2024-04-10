@@ -20,7 +20,15 @@
       object-fit: contain;
       z-index: 1;
     }
-
+    .discName{
+      position: absolute;
+      top: 0%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: left;
+      z-index: 2;
+    }
     .button-container {
       position: absolute;
       top: 50%;
@@ -28,7 +36,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 2;
+      z-index: 3;
     }
 
     .button {
@@ -42,14 +50,21 @@
       max-width: 3%;
       max-height: 3%;
     }
+
+    #nameUser{
+      color: #fff;
+    }
   </style>
 </head>
 <body>
   <video id="videoPlayer" controls></video>
-
+  <div class="discName">
+    <h3 id="nameUser"></h3>
+  </div>
   <div class="button-container">
     <img src="/images/regresar.png" alt="Regresar" class="button2" onclick="playPreviousVideo()">
     <img src="/images/dislike.png" alt="Dislike" class="button" onclick="dislikeVideo()">
+    
     <img src="/images/like.png" alt="Like" class="button" onclick="likeVideo()">
     <img src="/images/siguiente.png" alt="Siguiente" class="button2" onclick="playNextVideo()">
   </div>
@@ -57,6 +72,7 @@
   <script>
     let videos = [];
     let currentVideoIndex = 0;
+    let currentVideoFileName = "";
 
     const videoPlayer = document.getElementById('videoPlayer');
 
@@ -70,6 +86,7 @@
         if (videos.length > 0) {
           // Reproducir el primer video al cargar la página
           playCurrentVideo();
+        getName(currentVideoFileName);
         } else {
           console.log('No hay videos disponibles.');
         }
@@ -82,6 +99,7 @@
       if (currentVideo) {
         videoPlayer.src = `/videos/no_moderados/${currentVideo}`;
         videoPlayer.pause();
+      getName(currentVideoFileName);
       } else {
         console.log('No hay más videos para reproducir.');
       }
@@ -91,12 +109,14 @@
     const playPreviousVideo = () => {
       currentVideoIndex = Math.max(0, currentVideoIndex - 1);
       playCurrentVideo();
+    getName(currentVideoFileName);
     };
 
     // Función para reproducir el próximo video
     const playNextVideo = () => {
       currentVideoIndex = Math.min(videos.length - 1, currentVideoIndex + 1);
       playCurrentVideo();
+    getName(currentVideoFileName);
     };
 
     // Función para manejar el botón de "Like"
@@ -108,6 +128,7 @@
           .then(() => {
             // Pasar al siguiente video
             playNextVideo();
+          getName(currentVideoFileName);
           })
           .catch(error => console.error('Error al procesar el botón "Like":', error));
       }
@@ -122,10 +143,21 @@
           .then(() => {
             // Pasar al siguiente video
             playNextVideo();
+            getName(currentVideoFileName);
           })
           .catch(error => console.error('Error al procesar el botón "Dislike":', error));
       }
     };
+
+    function getName(name) {
+      name = videos[currentVideoIndex].split('/').pop();
+      const i = name.indexOf("_")+1;
+      const li = name.lastIndexOf(".mp4");
+      const sume = name.substring(i,li);
+      document.getElementById('nameUser').textContent = "El video lo subio el usuario de discord: " + sume;
+    }
+
+
   </script>
 </body>
 </html>

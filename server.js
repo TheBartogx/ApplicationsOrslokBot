@@ -193,7 +193,8 @@ client.on('messageCreate', async (message) => {
       const extension = fileName.split('.').pop(); // Obtener la extensión del archivo
 
       if (extension.toLowerCase() !== 'mp4') {
-        console.error(`${message.author.id} extensión erronea`, err);
+        console.log(message.author.username)
+        console.error(`${message.author.id} extensión erronea`);
         message.channel.send(`<@${message.author.id}> No se permiten archivos que no sean extensión ".mp4" master.`);
         return; // Salir de la función si no es un archivo .mp4
       }
@@ -214,7 +215,7 @@ client.on('messageCreate', async (message) => {
       });
 
       const nextId = lastId + 1;
-      const newFileName = `${nextId}.mp4`;
+      const newFileName = `${nextId}_${message.author.username}.mp4`;
       const filePath = `public/videos/no_moderados/${newFileName}`;
 
       const fileStream = fs.createWriteStream(filePath);
