@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORSLOK Army</title>
+    <link rel="icon" href="./images/Logo.png" type="image/png">
+</head>
+<style>
+    @font-face {
+        font-family: "Ubuntu", sans-serif;
+        src: url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap') format('truetype');
+        font-weight: 500;
+        font-style: normal;
+    }
+
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: 'Ubuntu', sans-serif;
+    }
+
+    body {
+        background-image: url(./images/ORSLO.png);
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .access {
+        text-align: center;
+        color: #ccc;
+        width: 20rem;
+        height: 35rem;
+        background-color: rgba(0, 0, 0, 0.3);
+        border: 0.15rem solid rgba(60, 60, 60, 0.8);
+        padding: 1rem;
+        border-radius: 10px;
+        position: relative;
+    }
+
+    .access::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 50px solid transparent;
+        border-right: 50px solid transparent;
+        border-bottom: 15px solid #772770;
+    }
+
+    .access-user {
+        margin-bottom: 15px;
+    }
+
+    .access-user input::placeholder {
+        text-align: center;
+    }
+
+    #access-user-username {
+        margin-bottom: 15px;
+    }
+
+    #login {
+        margin-top: 3rem;
+    }
+
+    .form__group {
+        position: relative;
+        padding: 20px 0 0;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .form__field {
+        font-family: inherit;
+        width: 100%;
+        border: none;
+        border-bottom: 2px solid #9b9b9b;
+        outline: 0;
+        font-size: 17px;
+        color: #fff;
+        padding: 7px 0;
+        background: transparent;
+        transition: border-color 0.2s;
+    }
+
+    .form__field::placeholder {
+        color: transparent;
+    }
+
+    .form__field:placeholder-shown~.form__label {
+        font-size: 17px;
+        cursor: text;
+        top: 20px;
+    }
+
+    .form__label {
+        position: absolute;
+        top: 0;
+        display: block;
+        transition: 0.2s;
+        font-size: 14px;
+        color: #9b9b9b;
+        pointer-events: none;
+    }
+
+    .form__field:focus {
+        padding-bottom: 6px;
+        font-weight: 700;
+        border-width: 3px;
+        border-image: linear-gradient(to right, #969620, #d6d300);
+        border-image-slice: 1;
+    }
+
+    .form__field:focus~.form__label {
+        position: absolute;
+        top: 0;
+        display: block;
+        transition: 0.2s;
+        font-size: 17px;
+        color: #d6d300;
+        font-weight: 700;
+    }
+
+    /* reset input */
+    .form__field:required,
+    .form__field:invalid {
+        box-shadow: none;
+    }
+
+    button,
+    button::after {
+        padding: 10px 14px;
+        font-size: 15px;
+        background: linear-gradient(45deg, transparent 5%, #772770 5%);
+        border: 0;
+        color: #fff;
+        letter-spacing: 3px;
+        line-height: 1;
+        outline: transparent;
+        position: relative;
+        cursor: pointer;
+        z-index: 1;
+    }
+
+    button::after {
+        --slice-0: inset(50% 50% 50% 50%);
+        --slice-1: inset(80% -6px 0 0);
+        --slice-2: inset(50% -6px 30% 0);
+        --slice-3: inset(10% -6px 85% 0);
+        --slice-4: inset(40% -6px 43% 0);
+        --slice-5: inset(80% -6px 5% 0);
+        content: "ORSLOK";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 3%, #e15fd7 5%);
+        text-shadow: -3px -3px 0px #f8f005, 3px 3px 0px #00e6f6;
+        clip-path: var(--slice-0);
+    }
+
+    button:hover::after {
+        animation: 1s glitch;
+        animation-timing-function: steps(2, end);
+    }
+
+    @keyframes glitch {
+        0% {
+            clip-path: var(--slice-1);
+            transform: translate(-20px, -10px);
+        }
+
+        10% {
+            clip-path: var(--slice-3);
+            transform: translate(10px, 10px);
+        }
+
+        20% {
+            clip-path: var(--slice-1);
+            transform: translate(-10px, 10px);
+        }
+
+        30% {
+            clip-path: var(--slice-3);
+            transform: translate(0px, 5px);
+        }
+
+        40% {
+            clip-path: var(--slice-2);
+            transform: translate(-5px, 0px);
+        }
+
+        50% {
+            clip-path: var(--slice-3);
+            transform: translate(5px, 0px);
+        }
+
+        60% {
+            clip-path: var(--slice-4);
+            transform: translate(5px, 10px);
+        }
+
+        70% {
+            clip-path: var(--slice-2);
+            transform: translate(-10px, 10px);
+        }
+
+        80% {
+            clip-path: var(--slice-5);
+            transform: translate(20px, -10px);
+        }
+
+        90% {
+            clip-path: var(--slice-1);
+            transform: translate(-10px, 0px);
+        }
+
+        100% {
+            clip-path: var(--slice-1);
+            transform: translate(0);
+        }
+    }
+
+    .spanPass {
+        margin-left: 10px;
+        font-size: 12px;
+    }
+
+    .imageNav h2 {
+        cursor: default;
+        letter-spacing: 3px;
+    }
+
+    .imageNav img,
+    .select-image img {
+        width: 6rem;
+        height: 6rem;
+        border-radius: 50%;
+        border: 0.15rem solid #772770;
+    }
+
+    #loginRegisterNav {
+        text-align: center;
+    }
+
+    .select-image-btn {
+        letter-spacing: 3px;
+        padding: 6px 12px;
+        border: 2px solid transparent;
+        color: #fff;
+        cursor: pointer;
+        font-size: 12px;
+        position: relative;
+        overflow: hidden;
+        border-color: #772770;
+        clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%);
+        top: -2rem;
+        margin-left: 1rem;
+    }
+
+    .loginRegisterNav-btn {
+        letter-spacing: 3px;
+        padding: 8px 14px;
+        border: 2px solid transparent;
+        color: #fff;
+        cursor: pointer;
+        font-size: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .selected {
+        background-color: #772770;
+        border-color: #772770;
+        clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%);
+    }
+
+    .loginRegisterNav-btn:not(.selected) {
+        border-color: #772770;
+        clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 10px 100%);
+    }
+
+    .tooltip,
+    .tooltip2 {
+        position: relative;
+        text-align: right;
+        top: -2rem;
+        right: -10rem;
+        cursor: help;
+        z-index: 10;
+    }
+
+    .tooltip2 {
+        text-align: left;
+        right: 0;
+        top: 0;
+    }
+
+    .tooltip::after,
+    .tooltip2::after {
+        content: "Este apartado es un Token que da el administrador del sitio.";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 5px;
+        border-radius: 5px;
+        font-size: 14px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .tooltip2::after {
+        content: "Seleccionar la imagen no es obligatorio, pero se quedara la imagen default.";
+    }
+
+    .tooltip:hover::after,
+    .tooltip2:hover::after {
+        opacity: 1;
+    }
+
+    .tooltip img,
+    .tooltip2 img {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        border: none;
+    }
+
+    .error-message {
+        position: absolute;
+        top: calc(100% + 5px);
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #6e00006b;
+        color: #fff;
+        padding: 5px;
+        border-radius: 5px;
+        font-size: 14px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .error-message.show {
+        opacity: 1;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <div class="access">
+            <div id="loginRegisterNav">
+                <nav>
+                    <span id="loginBtn" class="loginRegisterNav-btn selected">LOGIN</span>
+                    <span id="registerBtn" class="loginRegisterNav-btn">REGISTRARSE</span>
+                </nav>
+            </div>
+            <br><br>
+
+            <div id="login" class="form-container">
+                <div class="imageNav">
+                    <img id="imageNav-image" src="./images/Logo.png">
+                    <h2>ORSLOK ARMY</h2>
+                </div>
+                <div class="access-user">
+                    <div class="form__group field">
+                        <input type="text" id="usuario-login-input" class="form__field" placeholder="" required="">
+                        <label for="name" class="form__label">Usuario</label>
+                    </div>
+                    <div class="form__group field">
+                        <input type="password" id="password-login-input" class="form__field" placeholder="" required="">
+                        <label for="name" class="form__label">Contraseña</label>
+                    </div>
+                </div>
+                <div class="access-buttons">
+                    <br>
+                    <button id="access-buttons-button" type="button">INGRESAR</button>
+                </div>
+            </div>
+
+
+            <div id="register" class="form-container">
+                <div class="select-image">
+                    <img id="select-image-img" src="./images/imgDef.png" alt="Imagen por defecto">
+                    <span class="tooltip2"><img src="./images/tooltip.png" alt=""></span>
+                    <span id="select-image-btn" class="select-image-btn">SELECCIONAR</span>
+                    <input type="file" id="file-input" style="display: none;">
+                </div>
+                <div class="register-user">
+                    <div class="form__group field">
+                        <input type="text" id="usuario-register" class="form__field" placeholder="Usuario" required="">
+                        <label for="name" class="form__label">Usuario</label>
+                    </div>
+                    <div class="form__group field">
+                        <input type="password" id="password-register" class="form__field" placeholder="Usua"
+                            required="">
+                        <label for="name" class="form__label">Contraseña</label>
+                    </div>
+                    <div class="form__group field">
+                        <input type="password" id="password-register-repeat" class="form__field" placeholder="Usua"
+                            required="">
+                        <label for="name" class="form__label">Repetir contraseña</label>
+                        <span id="password-mismatch-error" class="error-message">Las contraseñas no coinciden</span>
+                    </div>
+                    <div class="form__group field">
+                        <input type="password" id="token-register" class="form__field" placeholder="Usua" required="">
+                        <label for="name" class="form__label">Token Admin</label>
+                        <span class="tooltip"><img src="./images/tooltip.png" alt=""></span>
+                    </div>
+                </div>
+                <div class="register-buttons">
+                    <br>
+                    <button id="register-buttons-button" type="button">REGISTRARSE</button>
+                </div>
+            </div>
+            <br><br>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginBtn = document.getElementById("loginBtn");
+            const registerBtn = document.getElementById("registerBtn");
+            const loginDiv = document.getElementById("login");
+            const registerDiv = document.getElementById("register");
+            const imageNav = document.getElementById("imageNav-image");
+
+            const selectImageBtn = document.getElementById("select-image-btn");
+            const fileInput = document.getElementById("file-input");
+            const selectImageImg = document.getElementById("select-image-img");
+
+            const usuarioInput = document.getElementById("usuario-register");
+            const passwordInput = document.getElementById("password-register");
+            const repeatPasswordInput = document.getElementById("password-register-repeat");
+            const passwordMismatchError = document.getElementById("password-mismatch-error");
+            const tokenInput = document.getElementById("token-register");
+            const registerButton = document.getElementById("register-buttons-button");
+
+            function showLogin() {
+                loginDiv.style.display = "block";
+                registerDiv.style.display = "none";
+                loginBtn.classList.add("selected");
+                registerBtn.classList.remove("selected");
+            }
+
+            function showRegister() {
+                loginDiv.style.display = "none";
+                registerDiv.style.display = "block";
+                loginBtn.classList.remove("selected");
+                registerBtn.classList.add("selected");
+            }
+
+            loginBtn.addEventListener("click", showLogin);
+            registerBtn.addEventListener("click", showRegister);
+
+            showLogin();
+
+            selectImageBtn.addEventListener("click", function () {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener("change", function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        selectImageImg.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            function areFieldsComplete() {
+                return usuarioInput.value.trim() !== "" &&
+                    passwordInput.value.trim() !== "" &&
+                    repeatPasswordInput.value.trim() !== "" &&
+                    tokenInput.value.trim() !== "";
+            }
+
+            function doPasswordsMatch() {
+                return passwordInput.value === repeatPasswordInput.value;
+            }
+
+            // Función para habilitar o deshabilitar el botón de registro
+            function toggleRegisterButton() {
+                if (areFieldsComplete() && doPasswordsMatch()) {
+                    registerButton.disabled = false;
+                } else {
+                    registerButton.disabled = true;
+                }
+            }
+
+            function arePasswordsEmpty() {
+                return passwordInput.value.trim() === "" && repeatPasswordInput.value.trim() === "";
+            }
+
+            function doPasswordsMatch() {
+                return passwordInput.value === repeatPasswordInput.value;
+            }
+
+            function togglePasswordMismatchError() {
+                if (!doPasswordsMatch()) {
+                    passwordMismatchError.classList.add("show");
+                } else if (arePasswordsEmpty()) {
+                    passwordMismatchError.classList.remove("show");
+                } else {
+                    passwordMismatchError.classList.remove("show");
+                }
+            }
+            repeatPasswordInput.addEventListener("input", togglePasswordMismatchError);
+            usuarioInput.addEventListener("input", toggleRegisterButton);
+            passwordInput.addEventListener("input", toggleRegisterButton);
+            repeatPasswordInput.addEventListener("input", toggleRegisterButton);
+            tokenInput.addEventListener("input", toggleRegisterButton);
+        });
+
+
+
+        const accessButton = document.getElementById("access-buttons-button");
+
+        accessButton.addEventListener("click", async () => {
+            const usuario = document.getElementById("usuario-login-input").value;
+            const contraseña = document.getElementById("password-login-input").value;
+
+            try {
+                const response = await fetch("/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ usuario, contraseña })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = "principalPage.html";
+                } else {
+                    alert("Error al iniciar sesión: " + data.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al conectar con el servidor");
+            }
+        });
+
+        const usuarioInputLogin = document.getElementById("usuario-login-input");
+        const imageNav = document.getElementById("imageNav-image");
+
+        // Agregar evento al salir del input de usuario-login-input
+        usuarioInputLogin.addEventListener("blur", async () => {
+            const usuario = usuarioInputLogin.value;
+
+            try {
+                // Realizar solicitud al servidor para obtener la imagen asociada al usuario
+                const response = await fetch(`/getUserImage/${usuario}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Actualizar la imagen en imageNav-image
+                    imageNav.src = `${data.image}`;
+                } else {
+                    console.log("Error al obtener la imagen del usuario:", data.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al conectar con el servidor");
+            }
+        });
+
+        const registerButton = document.getElementById("register-buttons-button");
+
+        registerButton.addEventListener("click", async () => {
+            const usuario = document.getElementById("usuario-register").value;
+            const contraseña = document.getElementById("password-register").value;
+            const imagen = document.getElementById("select-image-img").src;
+            const token = document.getElementById("token-register").value;
+
+            try {
+                const response = await fetch("/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ usuario, contraseña, imagen, token })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert("Usuario registrado correctamente");
+                    // Aquí podrías redirigir al usuario a otra página o realizar alguna otra acción
+                } else {
+                    alert("No se pudo afregar el usuario");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al conectar con el servidor");
+            }
+        });
+
+        const passwordInputLogin = document.getElementById("password-login-input");
+
+        passwordInputLogin.addEventListener("keydown", function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault(); // Evita que se envíe el formulario
+                document.getElementById("access-buttons-button").click();
+            }
+        });
+    </script>
+</body>
+
+</html>
