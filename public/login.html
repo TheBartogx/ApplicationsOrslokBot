@@ -133,7 +133,6 @@
         font-weight: 700;
     }
 
-    /* reset input */
     .form__field:required,
     .form__field:invalid {
         box-shadow: none;
@@ -499,7 +498,6 @@
                 return passwordInput.value === repeatPasswordInput.value;
             }
 
-            // Función para habilitar o deshabilitar el botón de registro
             function toggleRegisterButton() {
                 if (areFieldsComplete() && doPasswordsMatch()) {
                     registerButton.disabled = false;
@@ -552,7 +550,7 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    window.location.href = "principalPage.html";
+                    window.location.href = data.redirectUrl;
                 } else {
                     alert("Error al iniciar sesión: " + data.message);
                 }
@@ -565,12 +563,10 @@
         const usuarioInputLogin = document.getElementById("usuario-login-input");
         const imageNav = document.getElementById("imageNav-image");
 
-        // Agregar evento al salir del input de usuario-login-input
         usuarioInputLogin.addEventListener("blur", async () => {
             const usuario = usuarioInputLogin.value;
 
             try {
-                // Realizar solicitud al servidor para obtener la imagen asociada al usuario
                 const response = await fetch(`/getUserImage/${usuario}`, {
                     method: "GET",
                     headers: {
@@ -581,7 +577,6 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Actualizar la imagen en imageNav-image
                     imageNav.src = `${data.image}`;
                 } else {
                     console.log("Error al obtener la imagen del usuario:", data.message);
@@ -613,7 +608,7 @@
 
                 if (data.success) {
                     alert("Usuario registrado correctamente");
-                    // Aquí podrías redirigir al usuario a otra página o realizar alguna otra acción
+                    
                 } else {
                     alert("No se pudo afregar el usuario");
                 }
@@ -627,7 +622,7 @@
 
         passwordInputLogin.addEventListener("keydown", function (event) {
             if (event.keyCode === 13) {
-                event.preventDefault(); // Evita que se envíe el formulario
+                event.preventDefault(); 
                 document.getElementById("access-buttons-button").click();
             }
         });

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +17,7 @@
       color: #ffd700;
     }
 
-    .container{
+    .container {
       background-color: #000;
       padding-top: 3%;
       border: 1px solid #ffd700;
@@ -46,17 +47,34 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1> &#x1f923; videos risa jaja &#x1f923; </h1>
-    <button onclick="location.href='/moderar'">Moderar</button>
-    <button onclick="location.href='/en-vivo'">LIVE</button>
+    <button onclick="redirectTo('/0-0')">Moderar</button>
+    <button onclick="redirectTo('/0-1')">LIVE</button>
   </div>
   <div class="container">
     <h1> &#x1f3a4; audios de la peña &#x1f3a4; </h1>
-
-    <button onclick="location.href='/moderara'">Moderar</button>
-    <button onclick="location.href='/en-vivoa'">LIVE</button>
+    <button onclick="redirectTo('/1-0')">Moderar</button>
+    <button onclick="redirectTo('/1-1')">LIVE</button>
   </div>
+
+  <script>
+    function redirectTo(url) {
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.redirectUrl) {
+            window.location.href = data.redirectUrl;
+          } else {
+            console.error("No se recibió ninguna URL de redirección del servidor");
+          }
+        })
+        .catch(error => {
+          console.error("Error al obtener la URL de redirección del servidor:", error);
+        });
+    }
+  </script>
 </body>
 </html>

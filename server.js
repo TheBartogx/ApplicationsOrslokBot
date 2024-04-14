@@ -1,9 +1,13 @@
 const express = require("express");
+const session = require("express-session");
 const fs = require("fs");
 const fsp = require("fs").promises;
 const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 80;
+const SECRETKEY =
+  process.env.SECRETKEY ||
+  "cdbe148ad0fcbab7b28be8b65429e79d271cf93b70a10a767d07eb71bd205bc5";
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
 const db = require("./db.js");
@@ -34,29 +38,75 @@ client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
+app.use(
+  session({
+    secret: SECRETKEY,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
 app.use(express.static("public"));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "/public/login.html"));
+function requireLogin(req, res, next) {
+  if (req.session && req.session.userId) {
+    return next();
+  } else {
+    return res.redirect("/"); 
+  }
+}
+
+app.use((req, res, next) => {
+  if (req.path.endsWith('.html')) {
+    return res.status(404).send('Not Found');
+  }
+  next();
 });
 
-app.get("/principalPage", (req, res) => {
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get("/reunix/*", (req, res) => {
+  const subpath = req.originalUrl.slice("/reunix".length);
+  res.redirect(`/orslokArmy${subpath}`);
+});
+
+app.get("/", (req, res) => {
+  if (req.session && req.session.userId) {
+    res.redirect("/orslokArmy/pp");
+  } else {
+    res.sendFile(path.join(__dirname, "/public/login.html"));
+  }
+});
+
+app.get("/orslokArmy/pp", requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, "/public/principalPage.html"));
 });
 
-app.get("/en-vivo", (req, res) => {
+app.get("/0-1", requireLogin, (req, res) => {
+  res.json({ redirectUrl: "/orslokArmy/ev" });
+});
+app.get("/orslokArmy/ev", requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, "/public/en-vivo.html"));
 });
 
-app.get("/moderar", (req, res) => {
+app.get("/0-0", requireLogin, (req, res) => {
+  res.json({ redirectUrl: "/orslokArmy/m" });
+});
+app.get("/orslokArmy/m", requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, "/public/moderar.html"));
 });
 
-app.get("/moderara", (req, res) => {
+app.get("/1-0", requireLogin, (req, res) => {
+  res.json({ redirectUrl: "/orslokArmy/ma" });
+});
+app.get("/orslokArmy/ma", requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, "/public/moderara.html"));
 });
 
-app.get("/en-vivoa", (req, res) => {
+app.get("/1-1", requireLogin, (req, res) => {
+  res.json({ redirectUrl: "/orslokArmy/eva" });
+});
+app.get("/orslokArmy/eva", requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, "/public/en-vivoa.html"));
 });
 
@@ -67,7 +117,6 @@ app.post("/register", async (req, res) => {
   const { usuario, contraseña, imagen, token } = req.body;
 
   try {
-    // Ejecuta la consulta SQL para buscar el token en la base de datos
     db.get(
       "SELECT valor_token FROM token WHERE valor_token = ?",
       [token],
@@ -81,15 +130,12 @@ app.post("/register", async (req, res) => {
         }
         console.log(row);
         if (!row) {
-          // Si no se encuentra ningún token con el valor proporcionado, devuelve un error
 
           console.log("fallo el token");
-          res
-            .status(400)
-            .json({
-              success: false,
-              message: "Token de administrador inválido",
-            });
+          res.status(400).json({
+            success: false,
+            message: "Token de administrador inválido",
+          });
           return;
         }
         console.log(row.valor_token);
@@ -117,7 +163,6 @@ app.post("/login", async (req, res) => {
   const { usuario, contraseña } = req.body;
 
   try {
-    // Ejecuta la consulta SQL para buscar el usuario en la base de datos
     db.get(
       "SELECT * FROM usuarios WHERE usuario = ?",
       [usuario],
@@ -129,23 +174,20 @@ app.post("/login", async (req, res) => {
             .json({ success: false, message: "Error interno del servidor" });
           return;
         }
-
-        // Verifica si se encontró un usuario
         if (row) {
-          // Obtén el hash de la contraseña almacenada en la base de datos
           const hashAlmacenado = row.contraseña;
 
           try {
-            // Compara el hash almacenado con el hash de la contraseña proporcionada por el usuario
             const contraseñaCorrecta = await bcrypt.compare(
               contraseña,
               hashAlmacenado
             );
 
             if (contraseñaCorrecta) {
+              req.session.userId = row.id;
+
               console.log("Contraseña correcta. Inicio de sesión exitoso.");
-              // Redirige al usuario a principalPage.html
-              res.json({ success: true, redirectUrl: "/principalPage.html" });
+              res.json({ success: true, redirectUrl: "/orslokArmy/pp" });
             } else {
               console.log("Contraseña incorrecta. Inicio de sesión fallido.");
               res
@@ -178,44 +220,42 @@ app.get("/getUserImage/:usuario", async (req, res) => {
   const usuario = req.params.usuario;
 
   try {
-      // Ejecuta la consulta SQL para obtener la imagen asociada al usuario
-      db.get(
-          "SELECT imagen FROM usuarios WHERE usuario = ?",
-          [usuario],
-          async (err, row) => {
-              if (err) {
-                  console.error("Error al buscar el usuario:", err);
-                  res.status(500).json({ success: false, message: "Error interno del servidor" });
-                  return;
-              }
-              if (row) {
-                  // Devolver la imagen
-                  res.json({ success: true, image: row.imagen });
-              } else {
-                  res.json({ success: false, message: "Usuario no encontrado" });
-              }
-          }
-      );
+    db.get(
+      "SELECT imagen FROM usuarios WHERE usuario = ?",
+      [usuario],
+      async (err, row) => {
+        if (err) {
+          console.error("Error al buscar el usuario:", err);
+          res
+            .status(500)
+            .json({ success: false, message: "Error interno del servidor" });
+          return;
+        }
+        if (row) {
+          res.json({ success: true, image: row.imagen });
+        } else {
+          res.json({ success: false, message: "Usuario no encontrado" });
+        }
+      }
+    );
   } catch (error) {
-      console.error("Error al obtener la imagen del usuario:", error);
-      res.status(500).json({ success: false, message: "Error interno del servidor" });
+    console.error("Error al obtener la imagen del usuario:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error interno del servidor" });
   }
 });
 
-// Ruta para actualizar el estado de moderación
 app.post("/updateModerationStatus", async (req, res) => {
   const { folder, status } = req.body;
 
   try {
-    // Lee el archivo info.json existente
     const filePath = `public/audios/${folder}/info.json`;
     const content = await fsp.readFile(filePath, "utf8");
     const infoData = JSON.parse(content);
 
-    // Actualiza el estado de moderación
     infoData.moderadoE = parseInt(status);
 
-    // Guarda la información actualizada en el archivo info.json
     await fsp.writeFile(filePath, JSON.stringify(infoData, null, 2));
 
     res.json({
@@ -262,7 +302,6 @@ app.get("/getVideos", (req, res) => {
       console.error("Error al leer la carpeta de videos:", err);
       res.status(500).json({ error: "Error al obtener la lista de videos" });
     } else {
-      // Filtrar archivos con extensión .mp4
       const videoFiles = files.filter((file) => file.endsWith(".mp4"));
       res.json(videoFiles);
     }
@@ -277,7 +316,6 @@ app.get("/getVideosModerados", (req, res) => {
       console.error("Error al leer la carpeta de videos:", err);
       res.status(500).json({ error: "Error al obtener la lista de videos" });
     } else {
-      // Filtrar archivos con extensión .mp4
       const videoFiles = files.filter((file) => file.endsWith(".mp4"));
       res.json(videoFiles);
     }
@@ -336,14 +374,12 @@ app.get("/dislikeVideo", (req, res) => {
 
 /*############################ DISCORD ################################*/
 client.on("messageCreate", async (message) => {
-  // Verificar si el mensaje es del canal específico y no enviado por un usuario excluido
   if (message.channel.id === "1207371105891917945") {
-    // Verificar si el mensaje tiene archivos adjuntos
     if (message.attachments.size > 0) {
       const attachmentURL = message.attachments.first().url;
       const parsedUrl = parse(attachmentURL);
       const fileName = parsedUrl.pathname.split("/").pop();
-      const extension = fileName.split(".").pop(); // Obtener la extensión del archivo
+      const extension = fileName.split(".").pop(); 
 
       if (extension.toLowerCase() !== "mp4") {
         console.log(message.author.username);
@@ -351,14 +387,13 @@ client.on("messageCreate", async (message) => {
         message.channel.send(
           `<@${message.author.id}> No se permiten archivos que no sean extensión ".mp4" master.`
         );
-        return; // Salir de la función si no es un archivo .mp4
+        return; 
       }
 
       if (!fs.existsSync("public/videos/no_moderados")) {
         fs.mkdirSync("public/videos/no_moderados");
       }
 
-      // Obtener el último id existente en la carpeta 'videos'
       const files = fs.readdirSync("public/videos/no_moderados/");
       let lastId = 0;
 
@@ -394,7 +429,6 @@ client.on("messageCreate", async (message) => {
         console.error("Error al guardar el archivo:", err);
       });
     } else if (!usuariosExcluidos.includes(message.author.id)) {
-      // Enviar mensaje si no hay archivos adjuntos
       message.channel.send(
         `<@${message.author.id}>, solo se permiten videos bro.`
       );
@@ -409,7 +443,7 @@ client.on("messageCreate", async (message) => {
       const attachmentURL = message.attachments.first().url;
       const parsedUrl = parse(attachmentURL);
       const audioFileName = parsedUrl.pathname.split("/").pop();
-      const jsonFileName = `info.json`; // Cambia el nombre del archivo JSON aquí
+      const jsonFileName = `info.json`; 
 
       if (!fs.existsSync("public/audios")) {
         fs.mkdirSync("public/audios");
@@ -451,7 +485,6 @@ client.on("messageCreate", async (message) => {
       fileStream.on("finish", () => {
         console.log(`Archivo guardado en: ${filePath}`);
 
-        // Save JSON data with a different name
         fs.writeFileSync(jsonFilePath, JSON.stringify(jsonData, null, 2));
         console.log(`JSON guardado en: ${jsonFilePath}`);
       });
